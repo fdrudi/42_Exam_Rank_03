@@ -6,7 +6,7 @@
 /*   By: fdrudi <fdrudi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 12:25:43 by fdrudi            #+#    #+#             */
-/*   Updated: 2022/03/28 17:11:28 by fdrudi           ###   ########.fr       */
+/*   Updated: 2022/03/28 17:19:30 by fdrudi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,16 @@ typedef struct	s_paint
 	char	c2[2];
 	char	**map;
 }				t_paint;
+
+void	ft_free(t_paint *p)
+{
+	int	i;
+
+	i = -1;
+	while (++i < p->w_y)
+		free(p->map[i]);
+	free(p->map);
+}
 
 int	ft_read(t_paint *p, int def)
 {
@@ -80,32 +90,6 @@ void	ft_print_map(t_paint *p)
 	}
 }
 
-int	ft_window(t_paint *p)
-{
-	int	i;
-
-	i = 0;
-	p->map = (char **) malloc (sizeof(char *) * p->w_y);
-	while (i < p->w_y)
-	{
-		p->map[i] = (char *) malloc (sizeof(char) * p->w_x);
-		memset(p->map[i], p->c[0], p->w_x);
-		i++;
-	}
-	if (ft_read(&p, -1) == 1)
-		return (1);
-	if (p->r[0] == 'R')
-		ft_square(&p);
-	else if (p->r[0] == 'r')
-		ft_square2(&p);
-	else
-	{
-		write(1, "Error: Operation file corrupted\n", 32);
-		return (1);
-	}
-	return (0);
-}
-
 void	ft_square(t_paint *p)
 {
 	int	i;
@@ -150,6 +134,32 @@ void	ft_square2(t_paint *p)
 	}
 }
 
+int	ft_window(t_paint *p)
+{
+	int	i;
+
+	i = 0;
+	p->map = (char **) malloc (sizeof(char *) * p->w_y);
+	while (i < p->w_y)
+	{
+		p->map[i] = (char *) malloc (sizeof(char) * p->w_x);
+		memset(p->map[i], p->c[0], p->w_x);
+		i++;
+	}
+	if (ft_read(p, -1) == 1)
+		return (1);
+	if (p->r[0] == 'R')
+		ft_square(p);
+	else if (p->r[0] == 'r')
+		ft_square2(p);
+	else
+	{
+		write(1, "Error: Operation file corrupted\n", 32);
+		return (1);
+	}
+	return (0);
+}
+
 int	main(int argc, char **argv)
 {
 	t_paint	p;
@@ -165,6 +175,7 @@ int	main(int argc, char **argv)
 	if (ft_window(&p) == 1)
 		return (1);
 	ft_print_map(&p);
+	ft_free(&p);
 	fclose(p.fp);
 	return (0);
 }
