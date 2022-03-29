@@ -1,34 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   micro_paint.c                                      :+:      :+:    :+:   */
+/*   mini_paint.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fdrudi <fdrudi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/28 12:25:43 by fdrudi            #+#    #+#             */
-/*   Updated: 2022/03/29 12:58:07 by fdrudi           ###   ########.fr       */
+/*   Created: 2022/03/29 10:43:15 by fdrudi            #+#    #+#             */
+/*   Updated: 2022/03/29 12:54:43 by fdrudi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <stdlib.h>
+#include <math.h>
 
-typedef struct	s_paint
+typedef struct s_paint
 {
 	FILE	*fp;
-	int		w_y;
+	char	**map;
 	int		w_x;
+	int		w_y;
 	char	c[2];
 	char	tmp;
-	float	p_x;
-	float	p_y;
-	float	x;
-	float	y;
-	char	r[2];
+	float	c_x;
+	float	c_y;
+	float	rad;
 	char	c2[2];
-	char	**map;
+	char	c3[2];
 }				t_paint;
 
 void	ft_free(t_paint *p)
@@ -41,6 +41,21 @@ void	ft_free(t_paint *p)
 	free(p->map);
 }
 
+void	ft_print(t_paint *p)
+{
+	int	i;
+	int	j;
+
+	i = -1;
+	while (++i < p->w_y)
+	{
+		j = -1;
+		while (++j < p->w_x)
+			write(1, &p->map[i][j], 1);
+		write(1, "\n", 1);
+	}
+}
+
 int	ft_read(t_paint *p, int def)
 {
 	if (def == 1)
@@ -50,87 +65,81 @@ int	ft_read(t_paint *p, int def)
 			write(1, "Error: Operation file corrupted\n", 32);
 			return (1);
 		}
-		fscanf(p->fp, "%c", &p->tmp);
-		if (p->tmp != '\n')
+	}
+	else
+	{
+		if (fscanf(p->fp, "%s %f %f %f %s", p->c2, &p->c_x, &p->c_y, &p->rad, p->c3) < 5
+			|| p->c2[1] != '\0' || p->c3[1] != '\0')
 		{
 			write(1, "Error: Operation file corrupted\n", 32);
 			return (1);
 		}
 	}
-	else
+	fscanf(p->fp, "%c", &p->tmp);
+	if (p->tmp != '\n')
 	{
-		if (fscanf(p->fp, "%s %f %f %f %f %s", p->r, &p->p_x, &p->p_y, &p->x, &p->y, p->c2) < 6
-			|| p->c2[1] != '\0' || p->r[1] != '\0')
-		{
-			write(1, "Error: Operation file corrupted\n", 32);
-			return (1);
-		}
-		fscanf(p->fp, "%c", &p->tmp);
-		if (p->tmp != '\n')
-		{
-			write(1, "Error: Operation file corrupted\n", 32);
-			return (1);
-		}
+		write(1, "Error: Operation file corrupted\n", 32);
+		return (1);
 	}
 	return (0);
 }
 
-void	ft_print_map(t_paint *p)
+void	ft_circle(t_paint *p)
 {
-	int	y;
+	int	i;
+	int	j;
 	int	x;
+	int	y;
+	float	tmp;
 
-	y = -1;
-	while (++y < p->w_y)
+	i = -1;
+	y = p->c_y - p->rad;
+	x = p->c_x - p->rad;
+	while (++i <= p->rad * 2)
 	{
-		x = -1;
-		while (++x < p->w_x)
-			write(1, &p->map[y][x], 1);
-		write(1, "\n", 1);
+		if ((y + i) < p->w_y && (y + i) >= 0)
+		{
+			j = -1;
+			while (++j <= p->rad * 2)
+			{
+				if ((x + j) < p->w_x && (x + j) >= 0)
+				{
+					tmp = sqrt(powf(i - p->rad, 2) + powf(j - p->rad, 2));
+					if (tmp <= p->rad && p->rad - tmp < 1)
+						p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
+				}
+			}
+		}
 	}
 }
 
-void	ft_square(t_paint *p)
+void	ft_circle2(t_paint *p)
 {
 	int	i;
 	int	j;
+	int	x;
+	int	y;
+	float	tmp;
 
-	i = 0;
-	while (i <= p->y && p->p_y < p->w_y)
+	i = -1;
+	y = p->c_y - p->rad;
+	x = p->c_x - p->rad;
+	printf("x : %d  y : %d", x, y);
+	while (++i <= p->rad * 2)
 	{
-		j = 0;
-		while (j < p->x  && p->p_x < p->w_x)
+		if ((y + i) < p->w_y && (y + i) >= 0)
 		{
-			p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-			j++;
-			p->p_x += 1;
+			j = -1;
+			while (++j <= p->rad * 2)
+			{
+				if ((x + j) < p->w_x && (x + j) >= 0)
+				{
+					tmp = sqrt(powf(i - p->rad, 2) + powf(j - p->rad, 2));
+					if (tmp <= p->rad)
+						p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
+				}
+			}
 		}
-		p->p_x -= j;
-		p->p_y += 1;
-		i++;
-	}
-}
-
-void	ft_square2(t_paint *p)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (i <= p->y && p->p_y < p->w_y)
-	{
-		j = 0;
-		p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-		while (j < p->x && (i == 0 || i == p->y) && p->p_x < p->w_x)
-		{
-			p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-			j++;
-			p->p_x += 1;
-		}
-		p->p_x -= j;
-		p->map[(int) p->p_y][(int) p->p_x + (int) p->x] = p->c2[0];
-		p->p_y += 1;
-		i++;
 	}
 }
 
@@ -138,24 +147,23 @@ int	ft_window(t_paint *p)
 {
 	int	i;
 
-	i = 0;
+	i = -1;
 	p->map = (char **) malloc (sizeof(char *) * p->w_y);
 	if (!p->map)
 		return (1);
-	while (i < p->w_y)
+	while (++i < p->w_y)
 	{
 		p->map[i] = (char *) malloc (sizeof(char) * p->w_x);
 		if (!p->map[i])
 			return (1);
 		memset(p->map[i], p->c[0], p->w_x);
-		i++;
 	}
 	if (ft_read(p, -1) == 1)
 		return (1);
-	if (p->r[0] == 'R')
-		ft_square(p);
-	else if (p->r[0] == 'r')
-		ft_square2(p);
+	if (p->c2[0] == 'c')
+		ft_circle(p);
+	else if (p->c2[0] == 'C')
+		ft_circle2(p);
 	else
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
@@ -178,8 +186,7 @@ int	main(int argc, char **argv)
 		return (1);
 	if (ft_window(&p) == 1)
 		return (1);
-	ft_print_map(&p);
+	ft_print(&p);
 	ft_free(&p);
-	fclose(p.fp);
 	return (0);
 }
