@@ -6,7 +6,7 @@
 /*   By: fdrudi <fdrudi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 10:43:15 by fdrudi            #+#    #+#             */
-/*   Updated: 2022/03/29 12:54:43 by fdrudi           ###   ########.fr       */
+/*   Updated: 2022/03/29 14:50:11 by fdrudi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,45 +86,15 @@ int	ft_read(t_paint *p, int def)
 
 void	ft_circle(t_paint *p)
 {
-	int	i;
-	int	j;
-	int	x;
-	int	y;
+	int		i;
+	int		j;
+	int		x;
+	int		y;
 	float	tmp;
 
 	i = -1;
 	y = p->c_y - p->rad;
 	x = p->c_x - p->rad;
-	while (++i <= p->rad * 2)
-	{
-		if ((y + i) < p->w_y && (y + i) >= 0)
-		{
-			j = -1;
-			while (++j <= p->rad * 2)
-			{
-				if ((x + j) < p->w_x && (x + j) >= 0)
-				{
-					tmp = sqrt(powf(i - p->rad, 2) + powf(j - p->rad, 2));
-					if (tmp <= p->rad && p->rad - tmp < 1)
-						p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
-				}
-			}
-		}
-	}
-}
-
-void	ft_circle2(t_paint *p)
-{
-	int	i;
-	int	j;
-	int	x;
-	int	y;
-	float	tmp;
-
-	i = -1;
-	y = p->c_y - p->rad;
-	x = p->c_x - p->rad;
-	printf("x : %d  y : %d", x, y);
 	while (++i <= p->rad * 2)
 	{
 		if ((y + i) < p->w_y && (y + i) >= 0)
@@ -136,7 +106,13 @@ void	ft_circle2(t_paint *p)
 				{
 					tmp = sqrt(powf(i - p->rad, 2) + powf(j - p->rad, 2));
 					if (tmp <= p->rad)
-						p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
+					{
+						if (p->c2[0] == 'C')
+							p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
+						else
+							if (p->rad - tmp < 1)
+								p->map[(int) (y + i)][(int) (x + j)] = p->c3[0];
+					}
 				}
 			}
 		}
@@ -160,15 +136,13 @@ int	ft_window(t_paint *p)
 	}
 	if (ft_read(p, -1) == 1)
 		return (1);
-	if (p->c2[0] == 'c')
-		ft_circle(p);
-	else if (p->c2[0] == 'C')
-		ft_circle2(p);
-	else
+	if (p->c2[0] != 'c' && p->c2[0] != 'C')
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
 		return (1);
 	}
+	else
+		ft_circle(p);
 	return (0);
 }
 

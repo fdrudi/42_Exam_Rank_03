@@ -6,7 +6,7 @@
 /*   By: fdrudi <fdrudi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/28 12:25:43 by fdrudi            #+#    #+#             */
-/*   Updated: 2022/03/29 12:58:07 by fdrudi           ###   ########.fr       */
+/*   Updated: 2022/03/29 14:35:24 by fdrudi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,42 +95,24 @@ void	ft_square(t_paint *p)
 	int	i;
 	int	j;
 
-	i = 0;
-	while (i <= p->y && p->p_y < p->w_y)
+	i = -1;
+	while (++i <= p->y)
 	{
-		j = 0;
-		while (j < p->x  && p->p_x < p->w_x)
+		if ((p->p_y + i) < p->w_y && (p->p_y + i) >= 0)
 		{
-			p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-			j++;
-			p->p_x += 1;
+			j = -1;
+			while (++j <= p->x)
+			{
+				if ((p->p_x + j) < p->w_x && (p->p_x + j) >= 0)
+				{
+					if (p->r[0] == 'R')
+						p->map[(int) p->p_y + i][(int) p->p_x + j] = p->c2[0];
+					else
+						if ((i == 0 || i == p->y) || (j == 0 || j == p->x))
+							p->map[(int) p->p_y + i][(int) p->p_x + j] = p->c2[0];
+				}
+			}
 		}
-		p->p_x -= j;
-		p->p_y += 1;
-		i++;
-	}
-}
-
-void	ft_square2(t_paint *p)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (i <= p->y && p->p_y < p->w_y)
-	{
-		j = 0;
-		p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-		while (j < p->x && (i == 0 || i == p->y) && p->p_x < p->w_x)
-		{
-			p->map[(int) p->p_y][(int) p->p_x] = p->c2[0];
-			j++;
-			p->p_x += 1;
-		}
-		p->p_x -= j;
-		p->map[(int) p->p_y][(int) p->p_x + (int) p->x] = p->c2[0];
-		p->p_y += 1;
-		i++;
 	}
 }
 
@@ -152,15 +134,13 @@ int	ft_window(t_paint *p)
 	}
 	if (ft_read(p, -1) == 1)
 		return (1);
-	if (p->r[0] == 'R')
-		ft_square(p);
-	else if (p->r[0] == 'r')
-		ft_square2(p);
-	else
+	if (p->r[0] != 'R' && p->r[0] != 'r')
 	{
 		write(1, "Error: Operation file corrupted\n", 32);
 		return (1);
 	}
+	else
+		ft_square(p);
 	return (0);
 }
 
