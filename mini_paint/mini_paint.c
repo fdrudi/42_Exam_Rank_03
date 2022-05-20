@@ -6,7 +6,7 @@
 /*   By: fdrudi <fdrudi@student.42roma.it>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 10:43:15 by fdrudi            #+#    #+#             */
-/*   Updated: 2022/05/20 13:03:36 by fdrudi           ###   ########.fr       */
+/*   Updated: 2022/05/20 16:08:55 by fdrudi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,5 +162,6 @@ int	main(int argc, char **argv)
 		return (1);
 	ft_print(&p);
 	ft_free(&p);
+	fclose(p.fp);
 	return (0);
 }
